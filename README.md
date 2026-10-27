@@ -77,3 +77,26 @@ python3 tools/verify.py build/titlebars.so
 The verifier needs a running Hyprland session with exactly one Hyprland instance, plus `foot`, `grim`, `wayland-scanner`, and a C compiler. It starts a disposable nested Hyprland with its own runtime directory and never loads the candidate library into the parent compositor. It checks repeated load/reload/unload, interleaved with the Windows XP fork when `/usr/lib/omarchy-windows-xp/hyprbars.so` is installed, and that a loaded plugin the config no longer configures reserves no titlebar space. It then exercises real pointer titlebar dragging to the screen edges without snapping, double-click maximize, and restoring a maximized window by dragging its titlebar. A two-window regression check deliberately delays button and double-click commands and changes focus before they run, to verify that actions keep the clicked window as their target. A final check confirms that `workspace_tag`-scoped titlebars release their space immediately when a window is tiled or untagged.
 
 Screenshots and logs go to `/tmp/omarchy-hyprland-titlebars-verification` by default; pass `--artifacts DIR` to change it.
+
+## Tablet input
+
+Pen tip contact on a titlebar uses the existing button-on-press semantics and
+configured double-click action. A move belongs to its tool and titlebar window;
+other tools, mouse input and touch cannot complete that gesture. Motion preserves
+the grab offset, including maximized-window restoration and monitor transitions.
+Hover and input outside titlebars remain available to applications.
+
+Hyprland 0.56 emits cancellable tablet callbacks before it maps their position or
+updates the cursor. The plugin applies the same active-area transform and uses
+Hyprland's pointer mapping before hit testing. Contact motion moves the captured
+layout target directly: it does not impersonate a mouse bind. Cancellation drops
+the target immediately while retaining weak records for any consumed tip presses
+whose releases have not arrived. Decoration observers follow Hyprland's unique
+ownership; tool, tablet and window references use their shared/weak lifetimes.
+
+Hardware acceptance still requires a disposable Hyprland session with a real
+physical tablet: confirm it appears under tablets in `hyprctl devices`, then test
+buttons, double-tap, dragging, release outside the bar, hover, a second input
+source, proximity loss and unplugging mid-drag. Repeat across scaled outputs and
+with a window closing mid-drag, then recheck mouse and touchscreen interactions.
+Load the candidate only in that disposable session, not an active work desktop.
