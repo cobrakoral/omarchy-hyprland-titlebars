@@ -110,6 +110,14 @@ omabox up titlebars-tablet --size 1280x800 --no-shell --net isolated --env OHT_T
 omabox -b titlebars-tablet run -- python3 tools/verify.py build/titlebars.so --in-omabox --tablet-fixture build/oht-tablet-fixture.so --artifacts /tmp/titlebars-verification
 ```
 
+Client environment isolation has a separate regression that runs the real tablet
+checks with an unusable ambient parent display. The closure-test client must
+still map using the verifier's explicit compositor environment:
+
+```bash
+omabox -b titlebars-tablet run -- python3 tools/verify_environment.py build/titlebars.so --in-omabox --tablet-fixture build/oht-tablet-fixture.so --artifacts /tmp/titlebars-client-environment
+```
+
 Verifier cleanup has separate failure-injection coverage. Inside the same disposable
 box, run:
 

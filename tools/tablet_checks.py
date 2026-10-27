@@ -9,7 +9,7 @@ import subprocess
 import time
 
 
-def verify_tablet(ctl, pointer, config, artifacts, library, fixture, first, second):
+def verify_tablet(ctl, pointer, config, artifacts, library, fixture, first, second, env):
   def windows():
     return {w['address']: w for w in json.loads(ctl('clients', '-j'))}
 
@@ -253,7 +253,7 @@ def verify_tablet(ctl, pointer, config, artifacts, library, fixture, first, seco
     place()
     print('PASS: tablet drag crosses monitors with mixed scales and transfers workspace ownership', flush=True)
 
-    third = subprocess.Popen(['foot', '--app-id=oht-tablet-close', 'sleep', '90'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    third = subprocess.Popen(['foot', '--app-id=oht-tablet-close', 'sleep', '90'], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
       for _ in range(50):
         found = [w for w in windows().values() if w['class'] == 'oht-tablet-close']

@@ -249,7 +249,7 @@ end
     ctl('dispatch', f'hl.dsp.window.move({{ x = 690, y = 320, window = "address:{second_address}" }})')
     if args.tablet_fixture:
       from tablet_checks import verify_tablet
-      verify_tablet(ctl, pointer, config, args.artifacts, args.library, args.tablet_fixture, first_address, second_address)
+      verify_tablet(ctl, pointer, config, args.artifacts, args.library, args.tablet_fixture, first_address, second_address, env)
 
     pointer(['move 180 305', 'wait 450', 'down', 'up', 'wait 100', 'down', 'up'])
     ctl('dispatch', f'hl.dsp.focus({{ window = "address:{second_address}" }})')
