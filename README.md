@@ -94,6 +94,37 @@ the target immediately while retaining weak records for any consumed tip presses
 whose releases have not arrived. Decoration observers follow Hyprland's unique
 ownership; tool, tablet and window references use their shared/weak lifetimes.
 
+### Isolated tablet regression checks
+
+The optional fixture sends synthetic Aquamarine tablet-tool events through the
+real CTablet, pointer manager, input manager and plugin handlers. It contains no
+copy of the production gesture logic and creates no kernel input devices. These
+checks are handler integration coverage, not physical-tablet or libinput coverage.
+
+Build the plugin and fixture against the installed compositor's headers:
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TABLET_FIXTURE=ON
+cmake --build build -j2
+omabox up titlebars-tablet --size 1280x800 --no-shell --net isolated --env OHT_TABLET_FIXTURES=1
+omabox -b titlebars-tablet run -- python3 tools/verify.py build/titlebars.so --in-omabox --tablet-fixture build/oht-tablet-fixture.so --artifacts /tmp/titlebars-verification
+```
+
+Run from this checkout so Omabox mounts it read-only. The verifier changes only
+the disposable box's configuration, restores it on completion, and unloads its
+plugins. It refuses `--in-omabox` outside an Omabox environment. Screenshots and
+logs are inside the box at the requested artifacts directory; export them before
+`omabox down titlebars-tablet` removes that session.
+
+Checks cover single button activation, delayed double-tap targeting, hover,
+application-event pass-through, grabbed dragging and return to the starting
+position, partial-axis motion, other-tool/mouse interference, touch during an
+owned mouse resize, pending move or button press, release outside the bar,
+proximity loss, tool/device removal, disabled bars, window closure, unload
+and reload, maximized restoration, negative output origins, and mixed monitor
+scales. The existing pointer and workspace-scope checks run in the same session.
+No production plugin or package depends on Omabox or the fixture.
+
 Hardware acceptance still requires a disposable Hyprland session with a real
 physical tablet: confirm it appears under tablets in `hyprctl devices`, then test
 buttons, double-tap, dragging, release outside the bar, hover, a second input
