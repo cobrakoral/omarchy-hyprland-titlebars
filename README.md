@@ -110,6 +110,18 @@ omabox up titlebars-tablet --size 1280x800 --no-shell --net isolated --env OHT_T
 omabox -b titlebars-tablet run -- python3 tools/verify.py build/titlebars.so --in-omabox --tablet-fixture build/oht-tablet-fixture.so --artifacts /tmp/titlebars-verification
 ```
 
+Verifier cleanup has separate failure-injection coverage. Inside the same disposable
+box, run:
+
+```bash
+omabox -b titlebars-tablet run -- python3 tools/verify_failures.py build/titlebars.so --artifacts /tmp/titlebars-cleanup
+```
+
+This executes the real verifier with failed instance discovery, an invalid instance
+count, and failed plugin unloads, checking that each failure restores the original
+configuration byte for byte. The tablet button marker is reset before each run,
+so an artifacts directory can be reused.
+
 Run from this checkout so Omabox mounts it read-only. The verifier changes only
 the disposable box's configuration, restores it on completion, and unloads its
 plugins. It refuses `--in-omabox` outside an Omabox environment. Screenshots and
